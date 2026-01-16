@@ -1,25 +1,27 @@
 pipeline {
-  agent { label 'linux' } // Use 'agent any' if you don't use labels
-  environment {
-    REPO_URL = 'https://github.com/bala-anand/ip-discovery-ci.git'
-    BRANCH   = 'main'
-  }
-  stages {
-    stage('Checkout') {
-      steps {
-        git branch: "${BRANCH}", url: "${REPO_URL}"
-      }
+    agent any   // Runs on any available Ubuntu/Linux agent
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clone your GitHub repository
+                git branch: 'main', url: 'https://github.com/bala-anand/ip-discovery-ci.git'
+            }
+        }
+        stage('Run Script') {
+            steps {
+                // Ensure script is executable
+                sh 'chmod +x ip_check.sh'
+                // Run the script
+                sh './ip_check.sh'
+            }
+        }
     }
-    stage('Execute IP Check') {
-      steps {
-        sh 'chmod +x ip_check.sh'
-        sh './ip_check.sh'
-      }
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
     }
-  }
-  post {
-    always {
-      echo 'Pipeline completed.'
-    }
-  }
 }
